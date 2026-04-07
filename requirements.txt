@@ -1,0 +1,13 @@
+#requirements
+torch
+torchvision
+transformers
+cnocr
+opencv-python
+numpy
+pandas
+matplotlib
+seaborn
+scikit-learn
+Pillow
+jupyter
