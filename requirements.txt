@@ -11,3 +11,5 @@ seaborn
 scikit-learn
 Pillow
 jupyter
+datasets
+tqdm
