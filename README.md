@@ -1,15 +1,15 @@
 # vr-chinese-ocr-eval
 
 ## How to setup
-source .venv/bin/activate
-pip install -r requirements.txt
+`source .venv/bin/activate`
+`pip install -r requirements.txt`
 
 ## Python Version
 3.11.15
 
 ## Where to work
-Modify /utils/utils.py, /data/utils.py, /evaluation/utils.py, /models/utils.py, and /perturbations/pipeline.py
-Run on /notebooks/workspace.ipynb
+- Modify `/utils/utils.py`, `/data/utils.py`, `/evaluation/utils.py`, `/models/utils.py`, and `/perturbations/pipeline.py`
+- Run on `/notebooks/workspace.ipynb`
 
 Feel free to add more modular py files to work on your own stuff
 
