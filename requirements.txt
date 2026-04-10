@@ -1,4 +1,4 @@
-#requirements
+# requirements
 torch
 torchvision
 transformers
@@ -13,3 +13,5 @@ Pillow
 jupyter
 datasets
 tqdm
+scipy
+tensorflow
