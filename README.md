@@ -1,7 +1,6 @@
 # vr-chinese-ocr-eval
 
 ## How to setup
-`source .venv/bin/activate`
 `pip install -r requirements.txt`
 
 ## Python Version
@@ -17,10 +16,22 @@ Feel free to add more modular py files to work on your own stuff
 Perturbations are implemented in `/perturbations/pipeline.py` and applied on a sampled subset of clean data.
 
 Current perturbation transforms:
+
+Lighting conditions:
 - Radial glare spot
 - Directional light streak
-- Gaussian noise
 - Contrast / lighting variation
+- White balance shift
+
+Camera / capture quality:
+- Gaussian noise
+- Motion blur
+- Low resolution
+
+Geometric distortion:
+- Perspective warp
+
+Physical obstruction:
 - Occlusion block
 
 ## Data Pipeline (Current)
@@ -61,9 +72,9 @@ When `return_perturbation_type=False`, it returns:
 
 `perturbation_type_*` values are:
 - `None` for clean samples
-- a perturbation label string (single or combined), e.g.:
+- a perturbation label string, e.g.:
 	- `gaussian_noise`
-	- `radial_glare+occlusion`
+	- `perspective_warp`
 
 ## Bucket Planning Helpers
 Helpers in `/perturbations/pipeline.py`:
@@ -72,8 +83,7 @@ Helpers in `/perturbations/pipeline.py`:
 - `required_perturb_count(min_per_bucket=50, include_combinations=False, bucket_count=None)`
 
 Examples:
-- Single-type buckets only: `required_perturb_count(50, include_combinations=False)` -> `250`
-- Full power-set buckets (non-empty combinations): `required_perturb_count(50, include_combinations=True)` -> `1550`
+- Single-type buckets only: `required_perturb_count(50, include_combinations=False)` -> `450`
 
 ## Notebook Usage
 Recommended setup cell:
@@ -95,11 +105,11 @@ If you use metadata, unpack 6 outputs:
 
 ```python
 X_train, X_test, y_train, y_test, perturbation_type_train, perturbation_type_test = u.load_data(
-		show_progress=True,
-		perturb_count=None,
-		include_combinations=True,
-		min_per_perturb_bucket=50,
-		return_perturbation_type=True,
+	show_progress=True,
+	perturb_count=None,
+	include_combinations=False,
+	min_per_perturb_bucket=50,
+	return_perturbation_type=True,
 )
 ```
 
