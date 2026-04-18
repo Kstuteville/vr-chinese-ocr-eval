@@ -1,6 +1,9 @@
 import numpy as np
-from datasets import load_dataset
 import matplotlib.pyplot as plt
+import kagglehub
+import os
+from pathlib import Path
+from PIL import Image
 
 from perturbations.pipeline import (
     perturbate_data,
@@ -17,6 +20,149 @@ def _to_object_array(items):
         arr[i] = item
     return arr
 
+
+def _iter_image_paths(root):
+    """Yield image file paths recursively from a directory."""
+    valid_suffixes = {".png", ".jpg", ".jpeg", ".bmp", ".webp"}
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames.sort()
+        for filename in sorted(filenames):
+            if Path(filename).suffix.lower() in valid_suffixes:
+                yield Path(dirpath) / filename
+
+
+def _resolve_train_root(dataset_root):
+    """Resolve train root for supported dataset layouts."""
+    candidates = [
+        dataset_root / "CASIA-HWDB_Train" / "Train",
+        dataset_root / "train",
+    ]
+    for candidate in candidates:
+        if candidate.exists() and candidate.is_dir():
+            return candidate
+    raise FileNotFoundError(
+        "Could not find a train directory. Checked: "
+        + ", ".join(str(c) for c in candidates)
+    )
+
+
+def _reservoir_sample_paths(root, k, rng):
+    """Uniformly sample k image paths without loading all file names into memory."""
+    sample = []
+    seen = 0
+    for img_path in _iter_image_paths(root):
+        seen += 1
+        if len(sample) < k:
+            sample.append(img_path)
+            continue
+        j = int(rng.integers(0, seen))
+        if j < k:
+            sample[j] = img_path
+    return sample, seen
+
+
+def _load_rgb(path):
+    """Load a file path as RGB uint8 numpy array."""
+    with Image.open(path) as img:
+        return np.asarray(img.convert("RGB"), dtype=np.uint8)
+
+
+# def load_data(
+#     clean_count=1500,
+#     perturb_count=None,
+#     test_size=0.2,
+#     random_state=124,
+#     return_perturbation_type=True,
+#     show_progress=True,
+#     balanced_perturbations=True,
+#     min_per_perturb_bucket=60,
+#     include_combinations=False,
+#     perturb_bucket_count=None,
+# ):
+#     """Load CASIA, build disjoint clean/perturb pools, perturb, and split."""
+#     selected_buckets = select_perturbation_buckets(
+#         include_combinations=include_combinations,
+#         bucket_count=perturb_bucket_count,
+#         random_state=random_state,
+#     )
+
+#     if perturb_count is None:
+#         perturb_count = required_perturb_count(
+#             min_per_bucket=min_per_perturb_bucket,
+#             include_combinations=include_combinations,
+#             bucket_count=perturb_bucket_count,
+#         )
+
+#     # ds = load_dataset("Teklia/CASIA-HWDB2-line")
+
+#     images = _to_object_array(ds["train"]["image"])
+#     labels = _to_object_array(ds["train"]["text"])
+
+#     if clean_count + perturb_count > len(images):
+#         raise ValueError(
+#             "clean_count + perturb_count must be <= available samples "
+#             f"({len(images)})."
+#         )
+
+#     rng = np.random.default_rng(random_state)
+#     clean_idx = rng.choice(len(images), size=clean_count, replace=False)
+#     X_clean = images[clean_idx]
+#     y_clean = labels[clean_idx]
+
+#     remaining_idx = np.setdiff1d(np.arange(len(images)), clean_idx, assume_unique=False)
+#     perturb_idx = rng.choice(remaining_idx, size=perturb_count, replace=False)
+#     X_perturb_src = images[perturb_idx]
+#     y_perturb_src = labels[perturb_idx]
+
+#     perturbation_plan = None
+#     if balanced_perturbations:
+#         perturbation_plan = _build_balanced_perturbation_plan_for_buckets(
+#             perturb_count,
+#             selected_buckets,
+#             rng,
+#         )
+
+#     X_perturbed, y_perturbed, pert_types = perturbate_data(
+#         X_perturb_src,
+#         y_perturb_src,
+#         random_state=random_state,
+#         show_progress=show_progress,
+#         perturbation_plan=perturbation_plan,
+#         available_buckets=selected_buckets,
+#     )
+
+#     X_all = np.concatenate([_to_object_array(X_clean), _to_object_array(X_perturbed)])
+#     y_all = np.concatenate([_to_object_array(y_clean), _to_object_array(y_perturbed)])
+#     clean_types = _to_object_array([None] * len(X_clean))
+#     perturbation_types = np.concatenate([clean_types, _to_object_array(pert_types)])
+
+#     shuffle_idx = rng.permutation(len(X_all))
+#     X_all = X_all[shuffle_idx]
+#     y_all = y_all[shuffle_idx]
+#     perturbation_types = perturbation_types[shuffle_idx]
+
+#     n_total = len(X_all)
+#     n_train = int(round((1 - test_size) * n_total))
+#     n_train = max(1, min(n_total - 1, n_train))
+
+#     X_train = X_all[:n_train]
+#     X_test = X_all[n_train:]
+#     y_train = y_all[:n_train]
+#     y_test = y_all[n_train:]
+#     perturbation_type_train = perturbation_types[:n_train]
+#     perturbation_type_test = perturbation_types[n_train:]
+
+#     if return_perturbation_type:
+#         return (
+#             X_train,
+#             X_test,
+#             y_train,
+#             y_test,
+#             perturbation_type_train,
+#             perturbation_type_test,
+#         )
+
+#     return X_train, X_test, y_train, y_test
 
 def load_data(
     clean_count=1500,
@@ -44,25 +190,30 @@ def load_data(
             bucket_count=perturb_bucket_count,
         )
 
-    ds = load_dataset("Teklia/CASIA-HWDB2-line")
-    images = _to_object_array(ds["train"]["image"])
-    labels = _to_object_array(ds["train"]["text"])
+    rng = np.random.default_rng(random_state)
 
-    if clean_count + perturb_count > len(images):
+    dataset_root = Path(
+        kagglehub.dataset_download("pascalbliem/handwritten-chinese-character-hanzi-datasets")
+    )
+    train_root = _resolve_train_root(dataset_root)
+
+    k_total = clean_count + perturb_count
+    sampled_paths, total_available = _reservoir_sample_paths(train_root, k_total, rng)
+
+    if total_available < k_total:
         raise ValueError(
             "clean_count + perturb_count must be <= available samples "
-            f"({len(images)})."
+            f"({total_available})."
         )
 
-    rng = np.random.default_rng(random_state)
-    clean_idx = rng.choice(len(images), size=clean_count, replace=False)
-    X_clean = images[clean_idx]
-    y_clean = labels[clean_idx]
+    rng.shuffle(sampled_paths)
+    clean_paths = sampled_paths[:clean_count]
+    perturb_paths = sampled_paths[clean_count:]
 
-    remaining_idx = np.setdiff1d(np.arange(len(images)), clean_idx, assume_unique=False)
-    perturb_idx = rng.choice(remaining_idx, size=perturb_count, replace=False)
-    X_perturb_src = images[perturb_idx]
-    y_perturb_src = labels[perturb_idx]
+    X_clean = _to_object_array([_load_rgb(p) for p in clean_paths])
+    y_clean = _to_object_array([p.parent.name for p in clean_paths])
+    X_perturb_src = _to_object_array([_load_rgb(p) for p in perturb_paths])
+    y_perturb_src = _to_object_array([p.parent.name for p in perturb_paths])
 
     perturbation_plan = None
     if balanced_perturbations:

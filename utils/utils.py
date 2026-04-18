@@ -18,8 +18,8 @@ evaluate_model = evaluation_utils.evaluate_model
 plot_loss = evaluation_utils.plot_loss
 
 # Model utilities
-build_baseline = model_utils.build_baseline
-train_model = model_utils.train_model
+# build_baseline = model_utils.build_baseline
+# train_model = model_utils.train_model
 
 __all__ = [
 	"load_data",
@@ -27,11 +27,11 @@ __all__ = [
 	"explore_data",
 	"evaluate_model",
 	"plot_loss",
-	"build_baseline",
-	"train_model",
-	"data_utils",
-	"evaluation_utils",
-	"model_utils",
+	# "build_baseline",
+	# "train_model",
+	# "data_utils",
+	# "evaluation_utils",
+	# "model_utils",
 ]
 
 
