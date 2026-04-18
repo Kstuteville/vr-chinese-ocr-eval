@@ -66,6 +66,8 @@ def run_trocr(X_test, model_name="ZihCiLin/trocr-traditional-chinese-baseline", 
         HuggingFace model name. Default is 'ZihCiLin/trocr-traditional-chinese-baseline',
         fine-tuned on Traditional Chinese handwritten characters.
         Alternative: 'microsoft/trocr-base-handwritten' for English handwriting baseline.
+        show_progress : bool
+        Whether to show a tqdm progress bar.
 
     Returns
     -------
