@@ -22,8 +22,6 @@ Usage (in your notebook):
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
-from PIL import Image
-from datasets import load_dataset
 
 # Import the perturbation pipeline
 # Adjust the import path if running from inside /notebooks
@@ -90,7 +88,13 @@ def _apply_single_perturbation(images, perturbation_name, random_state=42):
 
 # ── Main visualization ────────────────────────────────────────────────────────
 
-def show_perturbation_grid(n_samples=5, random_state=42, save_path=None):
+def show_perturbation_grid(
+    images_raw=None,
+    labels_raw=None,
+    n_samples=5,
+    random_state=42,
+    save_path=None,
+):
     """
     Display a grid showing every perturbation applied to real CASIA images.
 
@@ -104,6 +108,12 @@ def show_perturbation_grid(n_samples=5, random_state=42, save_path=None):
 
     Parameters
     ----------
+    images_raw : sequence or None
+        Raw image collection (e.g. list/array of PIL Images or ndarrays).
+        If None, falls back to Hugging Face CASIA dataset loading.
+    labels_raw : sequence or None
+        Raw labels corresponding to images_raw.
+        If None, blank labels are used.
     n_samples : int
         Number of CASIA images to use as columns (default 5).
         Keep low (≤8) for readable display.
@@ -112,12 +122,31 @@ def show_perturbation_grid(n_samples=5, random_state=42, save_path=None):
     save_path : str or None
         If given, also saves the figure to this path (e.g. "analysis.png").
     """
-    print("Loading CASIA dataset (this may take a moment the first time)...")
-    ds = load_dataset("Teklia/CASIA-HWDB2-line")
-    images_raw = ds["train"]["image"]
-    labels_raw = ds["train"]["text"]
+    if images_raw is None:
+        from datasets import load_dataset
+
+        print("Loading CASIA dataset (this may take a moment the first time)...")
+        ds = load_dataset("Teklia/CASIA-HWDB2-line")
+        images_raw = ds["train"]["image"]
+        labels_raw = ds["train"]["text"]
+
+    images_raw = list(images_raw)
+    if labels_raw is None:
+        labels_raw = [""] * len(images_raw)
+    else:
+        labels_raw = list(labels_raw)
+
+    if len(images_raw) == 0:
+        raise ValueError("images_raw must contain at least one image.")
+    if len(labels_raw) != len(images_raw):
+        raise ValueError("labels_raw must have the same length as images_raw.")
 
     rng = np.random.default_rng(random_state)
+    n_samples = int(n_samples)
+    if n_samples <= 0:
+        raise ValueError("n_samples must be >= 1.")
+    if n_samples > len(images_raw):
+        n_samples = len(images_raw)
     idx = rng.choice(len(images_raw), size=n_samples, replace=False)
 
     # Convert to uint8 RGB numpy arrays
