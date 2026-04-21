@@ -54,9 +54,8 @@ def _predict_single(processor, model, img):
         return ""
 
 
-def run_trocr(X_test, model_name="ZihCiLin/trocr-traditional-chinese-baseline", show_progress=True):
-    """
-    Run TrOCR inference on a test set and return predictions.
+def run_trocr(X_test, model_name="microsoft/trocr-base-handwritten", show_progress=True):
+    """    Run TrOCR inference on a test set and return predictions.
 
     Parameters
     ----------
