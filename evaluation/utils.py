@@ -1,15 +1,6 @@
-import numpy as np
 import matplotlib.pyplot as plt
 
-
-def evaluate_model(model, X_test, y_test):
-    """
-    Evaluate a trained model on a test set and return accuracy as a percentage.
-    """
-    y_pred = model.predict(X_test)
-    y_pred_classes = (y_pred > 0.5).astype(int)
-    accuracy = (y_pred_classes == y_test).sum() / len(y_test)
-    return accuracy * 100
+from evaluation.metrics import evaluate, robustness_gap, macro_mean_cer, cer, mean_cer, exact_match
 
 
 def plot_loss(history):
