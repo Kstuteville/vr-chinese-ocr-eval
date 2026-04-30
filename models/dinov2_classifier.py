@@ -15,9 +15,9 @@ Reference: https://github.com/facebookresearch/dinov2
 
 import numpy as np
 import torch
-import torch.nn as nn
 from PIL import Image
 from torchvision import transforms
+from sklearn.neighbors import KNeighborsClassifier
 
 
 # Standard ImageNet normalization used by DINOv2
@@ -130,39 +130,13 @@ def run_dinov2(X_train, y_train, X_test, model_name="dinov2_vitb14", show_progre
     print("[DINOv2] Extracting test embeddings...")
     embeddings_test = _extract_embeddings(X_test, model, show_progress=show_progress)
 
-    # Build label encoder from training labels
-    unique_labels = sorted(set(y_train))
-    label_to_idx = {label: i for i, label in enumerate(unique_labels)}
-    idx_to_label = {i: label for label, i in label_to_idx.items()}
-    num_classes = len(unique_labels)
+    # kNN classifier — works far better than a linear head when training data
+    # is sparse (≈1 sample per class). DINOv2 embeddings are rich enough that
+    # nearest-neighbor in embedding space gives meaningful results even with
+    # very few examples per character class.
+    print("[DINOv2] Fitting kNN classifier...")
+    knn = KNeighborsClassifier(n_neighbors=1, metric="cosine")
+    knn.fit(embeddings_train, y_train)
 
-    # Convert labels to indices
-    y_idx = np.array([label_to_idx[label] for label in y_train])
-
-    # Train linear classification head
-    print("[DINOv2] Training classification head...")
-    embedding_dim = embeddings_train.shape[1]
-    head = nn.Linear(embedding_dim, num_classes)
-    optimizer = torch.optim.Adam(head.parameters(), lr=1e-3)
-    loss_fn = nn.CrossEntropyLoss()
-
-    X_tensor = torch.tensor(embeddings_train)
-    y_tensor = torch.tensor(y_idx, dtype=torch.long)
-
-    head.train()
-    for epoch in range(20):
-        optimizer.zero_grad()
-        logits = head(X_tensor)
-        loss = loss_fn(logits, y_tensor)
-        loss.backward()
-        optimizer.step()
-    head.eval()
-
-    # Run predictions on test embeddings
-    X_test_tensor = torch.tensor(embeddings_test)
-    with torch.no_grad():
-        logits = head(X_test_tensor)
-        indices = torch.argmax(logits, dim=1).numpy()
-
-    predictions = [idx_to_label.get(idx, "") for idx in indices]
-    return _to_object_array(predictions)
+    predictions = knn.predict(embeddings_test)
+    return _to_object_array(list(predictions))
