@@ -32,6 +32,7 @@ Usage:
 """
 
 import numpy as np
+from sklearn.metrics import precision_recall_fscore_support
 
 
 def _edit_distance(a, b):
@@ -66,6 +67,32 @@ def exact_match(predictions, y_test):
     return float(np.mean([p == g for p, g in zip(predictions, y_test)]))
 
 
+def precision_recall_f1(predictions, y_test):
+    """
+    Macro-averaged precision, recall, and F1 across all character classes.
+
+    Macro averaging treats every character class equally regardless of how
+    often it appears — important for our dataset since some characters are
+    rarer than others.
+
+    In our VR learning context:
+      - Low precision  → model accepts wrong handwriting (learner reinforces bad habits)
+      - Low recall     → model rejects correct handwriting (learner gets falsely corrected)
+      Both are equally bad, so F1 (harmonic mean) is the right summary metric.
+
+    Returns
+    -------
+    dict with keys 'precision', 'recall', 'f1'
+    """
+    p, r, f, _ = precision_recall_fscore_support(
+        list(y_test),
+        list(predictions),
+        average="macro",
+        zero_division=0,
+    )
+    return {"precision": float(p), "recall": float(r), "f1": float(f)}
+
+
 def evaluate(predictions, y_test, perturbation_types=None):
     """
     Compute overall and per-perturbation metrics.
@@ -89,9 +116,13 @@ def evaluate(predictions, y_test, perturbation_types=None):
             keyed by perturbation label or 'clean', each value is
             {'exact_match': float, 'mean_cer': float, 'n': int}
     """
+    prf = precision_recall_f1(predictions, y_test)
     results = {
         "exact_match": exact_match(predictions, y_test),
         "mean_cer": mean_cer(predictions, y_test),
+        "precision": prf["precision"],
+        "recall": prf["recall"],
+        "f1": prf["f1"],
     }
 
     if perturbation_types is not None:
@@ -105,9 +136,13 @@ def evaluate(predictions, y_test, perturbation_types=None):
         for label in unique:
             mask = pt == label
             key = "clean" if label is None else label
+            prf_sub = precision_recall_f1(preds[mask], gt[mask])
             by_perturbation[key] = {
                 "exact_match": exact_match(preds[mask], gt[mask]),
                 "mean_cer": mean_cer(preds[mask], gt[mask]),
+                "precision": prf_sub["precision"],
+                "recall": prf_sub["recall"],
+                "f1": prf_sub["f1"],
                 "n": int(mask.sum()),
             }
 

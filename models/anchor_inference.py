@@ -153,6 +153,7 @@ def _preprocess(img):
     pil_img = Image.fromarray(img).convert("L")  # RGB -> grayscale
     pil_img = pil_img.resize((_IMG_SIZE, _IMG_SIZE), Image.LANCZOS)
     arr = np.array(pil_img, dtype=np.float32) / 255.0
+    arr = 1.0 - arr  # ANCHOR trained on white strokes on black background
     return arr.reshape(1, _IMG_SIZE, _IMG_SIZE, 1)
 
 

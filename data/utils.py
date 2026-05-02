@@ -210,10 +210,19 @@ def load_data(
     clean_paths = sampled_paths[:clean_count]
     perturb_paths = sampled_paths[clean_count:]
 
+    def _fix_label(name):
+        # Folder names in this dataset are UTF-8 bytes decoded as cp437 by
+        # Python's zipfile module. Re-encode as cp437 and decode as UTF-8
+        # to recover the original Chinese characters.
+        try:
+            return name.encode('cp437').decode('utf-8')
+        except (UnicodeEncodeError, UnicodeDecodeError):
+            return name
+
     X_clean = _to_object_array([_load_rgb(p) for p in clean_paths])
-    y_clean = _to_object_array([p.parent.name for p in clean_paths])
+    y_clean = _to_object_array([_fix_label(p.parent.name) for p in clean_paths])
     X_perturb_src = _to_object_array([_load_rgb(p) for p in perturb_paths])
-    y_perturb_src = _to_object_array([p.parent.name for p in perturb_paths])
+    y_perturb_src = _to_object_array([_fix_label(p.parent.name) for p in perturb_paths])
 
     perturbation_plan = None
     if balanced_perturbations:
