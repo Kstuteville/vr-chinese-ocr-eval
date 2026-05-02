@@ -210,6 +210,61 @@ def plot_clean_comparison(results_dict, save_path=None):
     plt.show()
 
 
+def plot_overall_metrics(results_dict, save_path=None):
+    """
+    Grouped bar chart showing Accuracy, Precision, Recall, F1 side by side
+    per model, with CER on a secondary y-axis.
+
+    Parameters
+    ----------
+    results_dict : dict
+        {model_name: evaluate() output} for each model.
+    save_path : str or None
+    """
+    model_names = list(results_dict.keys())
+    metrics     = ["exact_match", "precision", "recall", "f1"]
+    labels      = ["Accuracy", "Precision", "Recall", "F1"]
+
+    n_models  = len(model_names)
+    n_metrics = len(metrics)
+    x         = np.arange(n_models)
+    width     = 0.18
+
+    fig, ax1 = plt.subplots(figsize=(10, 6))
+
+    for i, (metric, label) in enumerate(zip(metrics, labels)):
+        values = [results_dict[m].get(metric, 0.0) for m in model_names]
+        offset = (i - n_metrics / 2 + 0.5) * width
+        bars = ax1.bar(x + offset, values, width, label=label, alpha=0.85)
+
+    ax1.set_xticks(x)
+    ax1.set_xticklabels(model_names, fontsize=11)
+    ax1.set_ylabel("Score", fontsize=11)
+    ax1.set_title("Overall Model Performance — Accuracy, Precision, Recall, F1",
+                  fontsize=12, fontweight="bold")
+    ax1.yaxis.set_major_formatter(mtick.PercentFormatter(xmax=1.0))
+    ax1.set_ylim(0, 1.05)
+    ax1.legend(fontsize=9, loc="upper right")
+    ax1.grid(axis="y", linestyle="--", alpha=0.4)
+
+    # CER on secondary axis (lower is better)
+    ax2 = ax1.twinx()
+    cer_values = [results_dict[m].get("mean_cer", 0.0) for m in model_names]
+    ax2.plot(x, cer_values, color="black", marker="D", linewidth=2,
+             markersize=7, label="CER (lower = better)", zorder=5)
+    ax2.set_ylabel("Character Error Rate (CER)", fontsize=11)
+    ax2.set_ylim(0, 1.2)
+    ax2.legend(fontsize=9, loc="upper left")
+
+    plt.tight_layout()
+
+    if save_path:
+        fig.savefig(save_path, dpi=150, bbox_inches="tight")
+        print(f"Saved to {save_path}")
+
+    plt.show()
+
+
 def plot_f1_by_perturbation(results_dict, save_path=None):
     """
     Same layout as plot_accuracy_by_perturbation but using F1 score.

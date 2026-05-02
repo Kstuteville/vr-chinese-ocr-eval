@@ -209,5 +209,5 @@ __marimo__/
 # macOS
 .DS_Store
 
-# Model prediction outputs (regenerated per run)
-outputs/
+# Model prediction outputs (large .npy files — regenerated per run)
+outputs/*.npy
