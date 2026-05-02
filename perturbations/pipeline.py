@@ -190,8 +190,8 @@ def perturbate_data(
 
         # Maximum corner jitter as a fraction of each dimension
         jitter = rng.uniform(0.05, 0.20)
-        jx = int(w * jitter)
-        jy = int(h * jitter)
+        jx = max(1, int(w * jitter))
+        jy = max(1, int(h * jitter))
 
         # Source corners: the 4 corners of the original image
         src = np.float32([

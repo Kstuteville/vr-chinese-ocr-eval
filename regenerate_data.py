@@ -12,7 +12,7 @@ from data.utils import load_data
 print("Loading data from Kaggle CASIA dataset...")
 X_train, X_test, y_train, y_test, pert_type_train, pert_type_test = load_data(
     clean_count=4500,
-    min_per_perturb_bucket=60,
+    min_per_perturb_bucket=500,
 )
 
 print(f"Train: {len(X_train)} samples | Test: {len(X_test)} samples")
