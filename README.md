@@ -110,9 +110,3 @@ results = evaluate(preds, y_test, pert_types)
 ```
 
 ## Who Did What
-
-- **Kaylie** — data pipeline, label encoding fix, evaluation infrastructure, PaddleOCR integration, EasyOCR integration, ANCHOR debugging and pixel inversion fix, full model evaluation, figures
-- **Jasmine** — [insert work here]
-- **Kezia** — [insert work here]
-- **Eros** — [insert work here]
-- **Lia** — [insert work here]
