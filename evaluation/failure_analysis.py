@@ -23,6 +23,7 @@ def show_failures(
     perturbation_types=None,
     n=12,
     random_state=42,
+    save_path=None,
 ):
     """
     Display a grid of images the model got wrong.
@@ -81,6 +82,8 @@ def show_failures(
 
     fig.suptitle(f"{model_name} — failure examples", fontsize=12, fontweight="bold")
     plt.tight_layout()
+    if save_path:
+        fig.savefig(save_path, dpi=150, bbox_inches="tight")
     plt.show()
 
 
