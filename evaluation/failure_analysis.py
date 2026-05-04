@@ -11,8 +11,24 @@ Functions:
 """
 
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
 from collections import Counter
+
+_CJK_FONT_PREFERENCE = [
+    "Hiragino Sans GB", "Arial Unicode MS", "PingFang SC",
+    "Heiti SC", "STHeiti", "Noto Sans CJK SC",
+]
+
+
+def _use_cjk_font():
+    """Set a CJK-capable font so Chinese characters render correctly."""
+    available = {f.name for f in fm.fontManager.ttflist}
+    for font in _CJK_FONT_PREFERENCE:
+        if font in available:
+            matplotlib.rcParams["font.family"] = font
+            return
 
 
 def show_failures(
@@ -23,6 +39,7 @@ def show_failures(
     perturbation_types=None,
     n=12,
     random_state=42,
+    save_path=None,
 ):
     """
     Display a grid of images the model got wrong.
@@ -44,6 +61,8 @@ def show_failures(
     random_state : int
         Seed for reproducible sampling.
     """
+    _use_cjk_font()
+
     preds = np.asarray(predictions, dtype=object)
     gt    = np.asarray(y_test, dtype=object)
     X     = np.asarray(X_test, dtype=object)
@@ -81,6 +100,8 @@ def show_failures(
 
     fig.suptitle(f"{model_name} — failure examples", fontsize=12, fontweight="bold")
     plt.tight_layout()
+    if save_path:
+        fig.savefig(save_path, dpi=150, bbox_inches="tight")
     plt.show()
 
 
