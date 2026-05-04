@@ -171,7 +171,7 @@ Discovered and fixed the critical ANCHOR pixel inversion bug, ANCHOR expects whi
 Rebalanced the test set to ~100 samples per perturbation for fair comparison and fixed a perspective warp crash for small images (`regenerate_data.py`, `perturbations/pipeline.py`).
 Contributed to the main notebook with prediction caching and all evaluation outputs running end to end (`notebooks/workspace.ipynb`). Managed Git LFS setup for large data files and all merges to main.
 
-**Kezia Widjaja** —
+**Kezia Widjaja** — Establish the `workspace.ipynb` with `Setup` for `utils`, `Load Data`, `Perturbation`. Set the main utils file on `/utils` to load the rest of the utils methods for `load_data`, `split_data`, `explore_data`, `evaluate_model` (unused), `plot_loss` (unused). Establish the `utils.py` for `/evaluation`, `/models`, and `/data`. Defining the initial perturbation list and create function to combine diffferent perturbations (dropped due to complexity). Updating `README.md` with instruction to run the notebook and the perturbations list. Writing hypothesis and analysis of the model evaluation. Most of the commits are from [my fork](https://github.com/ekkezia/vr-chinese-ocr-eval) at `d6b3312fb5e671cd17657b5adf1a7cc617dc966d`.
 
 **Jasmine Zhang** —
 
