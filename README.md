@@ -166,7 +166,10 @@ results = evaluate(preds, y_test, pert_types)
 
 **Eros Carrasco** — Integrated CnOCR and Apple Vision into the evaluation pipeline. Evaluated CLIP as a feature extractor and dropped it from the main comparison after confirming it didn't add signal. Designed and implemented the nine VR perturbation types in `perturbations/pipeline.py`, based on real conditions encountered with Meta Quest passthrough cameras. Worked on generating and comparing results across all models. Built a WebXR application as a practical deployment of the findings: a real-time handwriting reader for VR that crops the region containing the character, applies perspective correction and contrast enhancement, and feeds only that preprocessed region to the model — filtering out the surrounding whiteboard and environment the headset sees.
 
-**Kaylie Stuteville** —
+**Kaylie Stuteville** — Contributed to the evaluation pipeline including metrics (exact match, CER, precision, recall, F1), visualization functions for paper figures, and formatted result tables (`evaluation/metrics.py`, `evaluation/accuracy_curves.py`, `evaluation/utils.py`).
+Discovered and fixed the critical ANCHOR pixel inversion bug, ANCHOR expects white strokes on black background and was scoring 0.5% without this fix. After the fix it jumped to 58.1%, making it the strongest model in the evaluation. Added ANCHOR, EasyOCR, and PaddleOCR as working models (`models/anchor_inference.py`, `models/easyocr_inference.py`, `models/paddleocr_inference.py`).
+Rebalanced the test set to ~100 samples per perturbation for fair comparison and fixed a perspective warp crash for small images (`regenerate_data.py`, `perturbations/pipeline.py`).
+Contributed to the main notebook with prediction caching and all evaluation outputs running end to end (`notebooks/workspace.ipynb`). Managed Git LFS setup for large data files and all merges to main.
 
 **Kezia Widjaja** —
 
