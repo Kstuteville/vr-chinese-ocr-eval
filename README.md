@@ -176,4 +176,4 @@ Most of my commits are on my fork and main
 
 **Jasmine Zhang** —
 
-**Lia Cociorva** —
+**Lia Cociorva** — Researching models to evaluate and which perturbations to evaluate them on. Using VR as our use case, we landed on 9 perturbations which are supported by academic research relevant to video and image perturbation for VR. 
