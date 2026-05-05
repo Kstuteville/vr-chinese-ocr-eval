@@ -174,6 +174,10 @@ Most of my commits are on my fork and main
 
 **Kezia Widjaja** — Establish the `workspace.ipynb` with `Setup` for `utils`, `Load Data`, `Perturbation`. Set the main utils file on `/utils` to load the rest of the utils methods for `load_data`, `split_data`, `explore_data`, `evaluate_model` (unused), `plot_loss` (unused). Establish the `utils.py` for `/evaluation`, `/models`, and `/data`. Defining the initial perturbation list and create function to combine diffferent perturbations (dropped due to complexity). Updating `README.md` with instruction to run the notebook and the perturbations list. Writing hypothesis and analysis of the model evaluation. Most of the commits are from [my fork](https://github.com/ekkezia/vr-chinese-ocr-eval) at `d6b3312fb5e671cd17657b5adf1a7cc617dc966d`.
 
-**Jasmine Zhang** —
+**Jasmine Zhang** — Sourced the CASIA-HWDB dataset on Chinese National Library of Pattern recognitio and Kaggle, making it available as the primary data source for the evaluation.
+
+Authored the core metric logic in `evaluation/metrics.py` — exact match, CER via Levenshtein edit distance, per-perturbation breakdowns, robustness gap, and macro CER for handling imbalanced perturbation buckets. Implemented the visualization functions in `evaluation/accuracy_curves.py` (grouped bar charts, robustness gap heatmaps, F1 charts for paper figures) and `evaluation/failure_analysis.py` (misclassification grids, top confused character pairs, per-class accuracy breakdowns, and cross-model failure comparison) — these were then integrated into the final notebook by Kaylie.
+
+Evaluated why DINOv2 and TrOCR were ultimately dropped from the main comparison — DINOv2's off-the-shelf ViT features failed to transfer to 3,755-class character recognition without fine-tuning, and no working Chinese handwriting checkpoint existed for TrOCR. Refactored the DINOv2 classifier to replace the custom linear head with a proper `KNeighborsClassifier` for 1-NN evaluation.
 
 **Lia Cociorva** — Researching models to evaluate and which perturbations to evaluate them on. Using VR as our use case, we landed on 9 perturbations which are supported by academic research relevant to video and image perturbation for VR. 
