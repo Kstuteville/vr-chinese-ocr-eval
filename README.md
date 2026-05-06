@@ -117,12 +117,15 @@ vr-chinese-ocr-eval/
 │   └── utils.py                      # formatted table printers for notebooks
 ├── notebooks/
 │   ├── analysis_final.ipynb          # main analysis notebook — all 5 models, all figures
+│   ├── analysis_vr.ipynb             # real-VR evaluation — per-character results across all models
 │   ├── workspace.ipynb               # exploratory notebook
 │   └── data/                         # pre-generated .npy files (tracked via Git LFS)
 │       ├── X_test.npy / X_train.npy
 │       ├── y_test.npy / y_train.npy
 │       └── pert_types.npy
+├── vr_test_images/                   # 151 real captures from Meta Quest 3S, organized by character
 ├── outputs/                          # generated predictions + figures (gitignored for .npy)
+├── run_vr_inference.py               # runs all 5 models on the real-VR image set
 └── regenerate_data.py                # rebuilds notebooks/data/ from scratch
 ```
 
