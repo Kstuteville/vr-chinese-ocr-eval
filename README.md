@@ -8,7 +8,7 @@ For our Deep Learning for Media class (MPATE-GE 2039 / DM-GY 9103), we set up a 
 
 Our secondary goal was to study the **representation space** of these models: where do they fail, which character pairs get confused with each other, and do different perturbations break different models in different ways?
 
-The short answer: ANCHOR, a model from 2013 built specifically for handwritten Chinese, outperforms all modern production OCR systems across almost every VR condition. Modern OCR tools are optimized for printed documents — not isolated handwritten characters on a whiteboard viewed through a headset.
+The short answer: on the synthetic perturbed test set, ANCHOR — a model from 2013 built specifically for handwritten Chinese — outperforms every modern production OCR system. But on real frames captured from the Meta Quest 3S, the ranking inverts: ANCHOR drops to 0% and CnOCR jumps to first. ANCHOR's recognizer might still be the strongest of the five — but it requires a much heavier preprocessing pipeline to be usable in production. Synthetic perturbations underestimate the real domain gap.
 
 ---
 
